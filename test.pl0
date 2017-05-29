@@ -1,0 +1,8 @@
+/* working program for pl0 */
+
+var test;
+begin
+	read test;
+	if test # 0 then
+		write test
+end. 

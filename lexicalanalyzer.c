@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 int lexemeFile(FILE *fpInput);
 
@@ -36,17 +37,20 @@ static int reservedWordNumber[13] = {28, 29, 30, 27, 21, 22, 23, 24, 33, 25, 26,
 
 static char *specialSymbols[12] = {"+", "-", "*", "/", "(", ")", "=", ",", ".", "<",
 	">", ";"};
-static int specialSymbolsNumber[12] = {4, 5, 6, 7, 15, 16, 10, 17, 19, 11, 13, 18};
+static int specialSymbolsNumber[12] = {4, 5, 6, 7, 15, 16, 9, 17, 19, 11, 13, 18};
 
 static char *remainingSymbols[6] = {"null", "odd", ":=", "#", "$", "%"};
 static int remainingSymbolsNumber[6] = {1, 8, 20, 10, 12, 14};
 
 
-void main (int argc, char *argv[]) 
+void lexicalanalyzer () 
 {
+	char testFile[50];
+	printf("Please input pl0 file name.\n");
+	scanf("%s", testFile);
 
 	FILE *fpInput;
-	fpInput = fopen(argv[1], "r");
+	fpInput = fopen(testFile, "r");
 
 	if (fpInput == NULL)
 	{
@@ -86,7 +90,7 @@ int lexemeFile(FILE *fpInput)
 	while(ch != EOF)
 	{
 		//Prints code to screen.
-		printf("%c", ch);
+		//printf("%c", ch);
 
 		int rwLoc = -1, ssLoc = -1, rsLoc = -1;
 		temp = ch;
@@ -97,11 +101,27 @@ int lexemeFile(FILE *fpInput)
 			//We are in comments. Do Nothing.
 			commentState = 1;
 		}
-		else if (temp == 47 && ltemp == 42)
+		else if (temp == 47 && ltemp == 42 && commentState == 1)
 		{
 			//We just left comments. Do Nothing.
 			commentState = 0;
+			charCounter = 0;
+            numCounter = 0;
+            symCounter = 0;
+            genCounter = 0;
+            possId = 0;
+            possSym = 0;
+            possNum = 0;
+            rwLoc = -1;
+            ssLoc = -1;
+            rsLoc = -1;
+
 			memset(buffer, '\0', 15);
+			memset(buffer, '\0', 15);
+		}
+		else if (commentState == 1)
+		{
+			//do nothing
 		}
 		//If next character is a symbol and previous was a letter or a number (x, or *4)
 		//We will take the buffer and save it to file, then save ch and save it on a separate line.
@@ -236,7 +256,7 @@ int lexemeFile(FILE *fpInput)
 				genCounter++;
 			}
 		}
-		else if (temp <= 32)
+		else if (temp <= 32 && commentState == 0)
 		{ //If we hit a control character we will check if buffer is empty. If its not,
 			//we will add it to the output file.
 			
@@ -336,7 +356,7 @@ int lexemeFile(FILE *fpInput)
 			//Resets Buffer.
 			memset(buffer, '\0', 15);
 		}
-		else if ((47 < temp) && (temp < 58))
+		else if ((47 < temp) && (temp < 58) && commentState == 0)
 		{ //Numerical Characters
 			numCounter++;
 			possNum = 1;
@@ -344,7 +364,7 @@ int lexemeFile(FILE *fpInput)
 			buffer[genCounter] = ch;
 			genCounter++;
 		}
-		else if (((64 < temp) && (temp < 91)) || ((96 < temp) && (temp < 123)))
+		else if ((((64 < temp) && (temp < 91)) || ((96 < temp) && (temp < 123))) &&  commentState == 0)
 		{ //Alphabet Characters
 			charCounter++;
 			possId = 1;
@@ -359,8 +379,8 @@ int lexemeFile(FILE *fpInput)
 			buffer[genCounter] = ch;
 			genCounter++;
 		}
-		else if (((32 < temp) && (temp < 48 )) || ((57 < temp) && (temp < 65)) || 
-			((90 < temp) && (temp < 97)) || ((122 < temp) && (temp < 127)))
+		else if ((((32 < temp) && (temp < 48 )) || ((57 < temp) && (temp < 65)) || 
+			((90 < temp) && (temp < 97)) || ((122 < temp) && (temp < 127)))  && commentState == 0)
 		{ //Special Characters
 			symCounter++;
 			possSym = 1;
@@ -383,11 +403,13 @@ int lexemeFile(FILE *fpInput)
 		{
 			printf("\nNUMBER TOO LARGE | VARIABLE NAME TOO LARGE %i\n", halt);
 			printf("ERROR.\n");
+			exit(EXIT_FAILURE);
 			ch = EOF;
 		}
 		else if ( halt == 1 )
 		{
 			printf("ERROR.\n");
+			exit(EXIT_FAILURE);
 		}
 	}
 

@@ -21,11 +21,11 @@ void printExecution (int stack[], int pc, int bp, int sp, int counter, int reg[]
 int readFile(FILE *fp, char *array);
 int base(int l, int base, int *stack);	
 
-void main (int argc, char *argv[])
+void vm ()
 {
 	//Opens input file.
 	FILE *fpInput;
-	fpInput = fopen(argv[1], "r");
+	fpInput = fopen("instructions.txt", "r");
 
 	char input[500];
 	struct instruction  inst;
@@ -129,11 +129,12 @@ void main (int argc, char *argv[])
 			else if (inst.op == 9)
 			{
 				//SIO
-				printf("reg[%i] = %i\n", inst.r, reg[inst.r]);
+				printf("%i\n", reg[inst.r]);
 			}
 			else if (inst.op == 10)
 			{
 				//SIO
+				printf("input: ");
 				scanf("%i", &in);
 				reg[inst.r] = in;
 			}
@@ -284,11 +285,11 @@ void printExecution (int stack[], int pc, int bp, int sp, int counter, int reg[]
 	fprintf(fpExecution, "\n");
 
 	//Prints registers.
-	/*for(i = 0; i < 16; i++)
+	for(i = 0; i < 16; i++)
 		fprintf(fpExecution, "%i\t", reg[i]);
 	
 	fprintf(fpExecution, "\n");	
-	fprintf(fpExecution, "\n");*/
+	fprintf(fpExecution, "\n");
 }
 
 //Writes assembly code into a file called assembly.txt
